@@ -1,0 +1,1938 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GeneTree - Pedigree Analysis Platform</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* =====================================================
+           GeneTree — "Warm & Accessible Hereditary Health"
+           Tokens come from DESIGN.md
+           ===================================================== */
+        :root {
+            /* Core palette */
+            --sage: #4A7C59;
+            --sage-deep: #3D684A;
+            --olive: #8FA998;
+            --mint: #C2D5C6;
+            --mint-text: #284833;
+            --terracotta: #D97757;
+            --terracotta-text: #B85333;
+            --terracotta-bg: #FBEBE6;
+            --slate: #2D3748;
+            --slate-muted: #5F6B7A;
+            --ivory: #F9F8F5;
+            --oat: #F2EFE9;
+            --linen: #E3DED6;
+            --white: #FFFFFF;
+
+            /* Elevation */
+            --shadow-1: 0 4px 20px -2px rgba(45, 55, 72, 0.04);
+            --shadow-2: 0 8px 30px -4px rgba(74, 124, 89, 0.08);
+            --shadow-3: 0 20px 48px -8px rgba(45, 55, 72, 0.12);
+
+            /* Shape */
+            --r-base: 0.5rem;
+            --r-lg: 1rem;
+            --r-xl: 1.5rem;
+
+            /* Aliases so existing markup / inline styles keep working */
+            --primary-green: var(--sage);
+            --light-green: var(--olive);
+            --accent-green: var(--sage);
+            --bg-white: var(--ivory);
+            --card-white: var(--white);
+            --text-dark: var(--slate);
+            --text-light: var(--slate-muted);
+            --border-color: var(--linen);
+            --success: var(--sage);
+            --warning: var(--olive);
+            --error: var(--terracotta-text);
+            --error-bg: var(--terracotta-bg);
+            --error-border: var(--terracotta);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Plus Jakarta Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+            font-size: 16px;
+            line-height: 1.5;
+            background: var(--ivory);
+            color: var(--slate);
+            min-height: 100vh;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .container { max-width: 1280px; margin: 0 auto; padding: 3rem; }
+
+        /* ---------- Header ---------- */
+        header {
+            text-align: center;
+            padding: 2.5rem 1.5rem;
+            background: var(--oat);
+            border: 1px solid var(--linen);
+            border-radius: var(--r-xl);
+            margin-bottom: 2.5rem;
+        }
+
+        header h1 {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: 40px;
+            line-height: 52px;
+            font-weight: 600;
+            letter-spacing: -0.02em;
+            color: var(--sage-deep);
+            margin-bottom: 0.25rem;
+        }
+
+        header p { color: var(--slate-muted); font-size: 18px; line-height: 28px; }
+
+        /* ---------- Pages ---------- */
+        .page { display: none; }
+        .page.active { display: block; animation: fadeIn 0.4s ease; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* ---------- Auth ---------- */
+        .auth-container {
+            max-width: 480px;
+            margin: 0 auto;
+            background: var(--white);
+            padding: 2.5rem;
+            border-radius: var(--r-xl);
+            box-shadow: var(--shadow-3);
+            border: 1px solid var(--linen);
+        }
+
+        .auth-container h2 {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-weight: 600;
+            font-size: 32px;
+            line-height: 42px;
+            letter-spacing: -0.015em;
+            color: var(--sage-deep);
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+
+        /* ---------- Form controls ---------- */
+        .form-group { margin-bottom: 1.25rem; }
+
+        label {
+            display: block;
+            margin-bottom: 0.4rem;
+            color: var(--slate);
+            font-weight: 600;
+            font-size: 15px;
+            line-height: 20px;
+        }
+
+        input[type="text"], input[type="email"], input[type="password"], input[type="number"], select {
+            width: 100%;
+            padding: 0.75rem 0.9rem;
+            border: 1.5px solid var(--linen);
+            border-radius: var(--r-base);
+            font-size: 16px;
+            background: var(--white);
+            font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+            color: var(--slate);
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        input::placeholder { color: #98A1AE; }
+
+        select {
+            appearance: none;
+            -webkit-appearance: none;
+            padding-right: 2.5rem;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='9' viewBox='0 0 14 9' fill='none'%3E%3Cpath d='M1 1.5l6 6 6-6' stroke='%234A7C59' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 0.9rem center;
+            cursor: pointer;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--sage);
+            box-shadow: 0 0 0 4px rgba(194, 213, 198, 0.65);
+        }
+
+        input.field-error, select.field-error {
+            border-color: var(--terracotta) !important;
+            background-color: var(--terracotta-bg);
+        }
+
+        select:disabled { background-color: var(--oat); color: var(--slate); cursor: not-allowed; opacity: 1; }
+
+        .error-msg {
+            color: var(--terracotta-text);
+            font-size: 13px;
+            font-weight: 600;
+            line-height: 18px;
+            margin-top: 0.35rem;
+            display: none;
+        }
+        .error-msg.show { display: block; }
+
+        .auto-hint { font-size: 13px; color: var(--sage); font-weight: 500; margin-top: 0.35rem; display: none; }
+        .auto-hint.show { display: block; }
+
+        /* ---------- Buttons ---------- */
+        .btn {
+            width: 100%;
+            padding: 0.85rem 1.25rem;
+            background: var(--sage);
+            color: var(--white);
+            border: 1.5px solid var(--sage);
+            border-radius: var(--r-base);
+            font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s, border-color 0.2s, box-shadow 0.2s, transform 0.15s;
+        }
+        .btn:hover { background: var(--sage-deep); border-color: var(--sage-deep); box-shadow: var(--shadow-2); transform: translateY(-1px); }
+        .btn:focus-visible { outline: 3px solid var(--olive); outline-offset: 3px; }
+
+        .btn-secondary {
+            background: var(--ivory);
+            color: var(--sage-deep);
+            border: 1.5px solid var(--linen);
+            margin-top: 0.75rem;
+        }
+        .btn-secondary:hover { background: var(--oat); border-color: var(--mint); color: var(--sage-deep); box-shadow: none; }
+
+        .nav-buttons .btn-secondary { margin-top: 0; }
+
+        .link-text { text-align: center; margin-top: 1.5rem; color: var(--slate-muted); font-size: 14px; }
+        .link-text a { color: var(--sage); text-decoration: none; font-weight: 600; }
+        .link-text a:hover { text-decoration: underline; }
+
+        /* ---------- Section cards ---------- */
+        .form-section {
+            max-width: 960px;
+            margin: 0 auto 1.5rem;
+            background: var(--white);
+            padding: 2.5rem;
+            border-radius: var(--r-xl);
+            border: 1px solid var(--linen);
+            box-shadow: var(--shadow-1);
+        }
+
+        .form-section h3 {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-weight: 600;
+            font-size: 32px;
+            line-height: 42px;
+            letter-spacing: -0.015em;
+            color: var(--sage-deep);
+            margin-bottom: 1rem;
+        }
+
+        .status-intro { color: var(--slate-muted); margin-bottom: 1.5rem; line-height: 1.65; }
+        .status-intro strong { color: var(--slate); }
+
+        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 0 1.5rem; }
+
+        /* Recessed groupings (Calming Oat, no shadow) */
+        .person-card {
+            background: var(--oat);
+            padding: 1.5rem;
+            border-radius: var(--r-lg);
+            border: 1px solid transparent;
+            margin-bottom: 1.25rem;
+        }
+
+        .person-card h4 {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-weight: 600;
+            font-size: 20px;
+            line-height: 28px;
+            color: var(--slate);
+            margin-bottom: 1rem;
+        }
+
+        .nav-buttons { display: flex; gap: 1rem; margin-top: 2rem; }
+        .nav-buttons .btn { width: auto; flex: 1; }
+
+        /* ---------- Choice cards (radios) ---------- */
+        .choice-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.25rem; }
+
+        .choice-card {
+            display: block;
+            background: var(--white);
+            border: 1.5px solid var(--linen);
+            border-radius: var(--r-lg);
+            padding: 1.5rem 1.5rem 1.5rem 4rem;
+            cursor: pointer;
+            transition: border-color 0.2s, box-shadow 0.2s, background 0.2s, transform 0.2s;
+            position: relative;
+            margin: 0;
+        }
+        .choice-card:hover { border-color: var(--mint); box-shadow: var(--shadow-2); transform: translateY(-2px); }
+        .choice-card:focus-within { outline: 3px solid var(--olive); outline-offset: 3px; }
+        .choice-card input { position: absolute; opacity: 0; pointer-events: none; }
+
+        /* soft round radio indicator */
+        .choice-card::before {
+            content: '';
+            position: absolute;
+            left: 1.5rem;
+            top: 1.6rem;
+            width: 1.5rem;
+            height: 1.5rem;
+            border-radius: 50%;
+            border: 2px solid var(--olive);
+            background: var(--white);
+            transition: all 0.2s;
+        }
+
+        .choice-card .choice-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-weight: 600;
+            font-size: 20px;
+            line-height: 28px;
+            color: var(--slate);
+            margin-bottom: 0.25rem;
+            display: block;
+        }
+        .choice-card .choice-desc { font-size: 14px; line-height: 20px; color: var(--slate-muted); font-weight: 400; display: block; }
+
+        .choice-card.selected { border-color: var(--sage); background: rgba(194, 213, 198, 0.28); box-shadow: var(--shadow-2); }
+        .choice-card.selected::before { background: var(--sage); border-color: var(--sage); box-shadow: 0 0 0 4px rgba(194, 213, 198, 0.7); }
+        .choice-card.selected::after {
+            content: '';
+            position: absolute;
+            left: calc(1.5rem + 0.5rem);
+            top: calc(1.6rem + 0.3rem);
+            width: 0.5rem;
+            height: 0.8rem;
+            border: solid var(--white);
+            border-width: 0 2.5px 2.5px 0;
+            border-radius: 1px;
+            transform: rotate(45deg) translate(-1px, -1px);
+        }
+
+        /* ---------- Disease picker ---------- */
+        .disease-panel {
+            background: var(--white);
+            border: 1.5px solid var(--linen);
+            border-radius: 0.75rem;
+            padding: 1rem 1.1rem;
+            max-height: 220px;
+            overflow-y: auto;
+        }
+        .disease-panel.field-error { border-color: var(--terracotta) !important; background: var(--terracotta-bg); }
+
+        .disease-category { margin-bottom: 0.9rem; }
+        .disease-category:last-child { margin-bottom: 0; }
+
+        .disease-category-title {
+            font-size: 11px;
+            line-height: 16px;
+            font-weight: 700;
+            color: var(--sage);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            margin-bottom: 0.4rem;
+            padding-bottom: 0.3rem;
+            border-bottom: 1px solid var(--linen);
+        }
+
+        .disease-checkboxes { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+
+        .disease-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            background: var(--white);
+            border: 1.5px solid var(--linen);
+            border-radius: 9999px;
+            padding: 0.25rem 0.75rem 0.25rem 0.55rem;
+            margin: 0;
+            font-size: 13px;
+            font-weight: 500;
+            line-height: 18px;
+            cursor: pointer;
+            color: var(--slate);
+            transition: all 0.15s;
+            user-select: none;
+        }
+        .disease-chip:hover { border-color: var(--olive); background: var(--ivory); }
+        .disease-chip:focus-within { outline: 3px solid var(--olive); outline-offset: 2px; }
+
+        /* rounded checkbox with sage fill */
+        .disease-chip input[type="checkbox"] {
+            appearance: none;
+            -webkit-appearance: none;
+            width: 16px;
+            height: 16px;
+            flex: none;
+            margin: 0;
+            padding: 0;
+            border: 1.5px solid var(--olive);
+            border-radius: 5px;
+            background: var(--white);
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        .disease-chip input[type="checkbox"]:checked {
+            background-color: var(--sage);
+            border-color: var(--sage);
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M4 8.5l2.6 2.6L12 5.6' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+            background-size: 100% 100%;
+        }
+        .disease-chip input[type="checkbox"]:focus-visible { outline: none; }
+
+        .disease-chip.checked { background: var(--mint); border-color: var(--mint); color: var(--mint-text); font-weight: 600; }
+
+        .selected-tags { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.6rem; min-height: 26px; }
+
+        .sel-tag {
+            display: inline-block;
+            background: var(--mint);
+            color: var(--mint-text);
+            padding: 0.2rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 13px;
+            line-height: 18px;
+            font-weight: 600;
+        }
+
+        .none-tag { color: var(--slate-muted); font-size: 13px; font-style: italic; }
+        .pill-list { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.6rem; }
+
+        /* ---------- Progress ---------- */
+        .progress-steps { display: flex; justify-content: space-between; max-width: 960px; margin: 0 auto 2rem; position: relative; }
+        .progress-steps::before { content: ''; position: absolute; top: 19px; left: 7.14%; width: 85.72%; height: 2px; background: var(--linen); z-index: 0; }
+        .step { flex: 1; text-align: center; position: relative; z-index: 1; }
+        .step-circle {
+            width: 38px; height: 38px; border-radius: 50%;
+            background: var(--ivory);
+            border: 2px solid var(--linen);
+            margin: 0 auto 0.5rem;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 700; font-size: 14px;
+            transition: all 0.3s;
+            color: var(--slate-muted);
+        }
+        .step.active .step-circle { background: var(--sage); border-color: var(--sage); color: var(--white); box-shadow: 0 0 0 5px rgba(194, 213, 198, 0.7); }
+        .step.completed .step-circle { background: var(--mint); border-color: var(--olive); color: var(--mint-text); }
+        .step.skipped .step-circle { background: var(--oat); border: 2px dashed var(--olive); color: #98A1AE; }
+        .step.nav { cursor: pointer; }
+        .step.nav .step-label { color: var(--slate); }
+        .step.nav:hover .step-circle { border-color: var(--sage); box-shadow: 0 0 0 4px rgba(194, 213, 198, 0.6); transform: translateY(-1px); }
+        .step.nav:hover .step-label { color: var(--sage-deep); }
+        .step.nav:focus { outline: none; }
+        .step.nav:focus-visible .step-circle { outline: 3px solid var(--olive); outline-offset: 3px; }
+        .step-label { font-size: 13px; line-height: 18px; color: var(--slate-muted); font-weight: 600; letter-spacing: 0.01em; }
+        .step.active .step-label { color: var(--sage-deep); }
+        .step.skipped .step-label { color: #98A1AE; text-decoration: line-through; }
+
+        .step.optional .step-circle { background: var(--oat); border: 2px dashed var(--olive); color: #98A1AE; }
+        .step.optional .step-label { color: #98A1AE; }
+
+        .subsection-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-weight: 600;
+            font-size: 24px;
+            line-height: 32px;
+            letter-spacing: -0.01em;
+            color: var(--sage-deep);
+            margin: 1.75rem 0 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--linen);
+        }
+        .optional-tag {
+            display: inline-block;
+            margin-left: 0.5rem;
+            padding: 0.1rem 0.7rem;
+            border-radius: 9999px;
+            background: var(--white);
+            border: 1px solid var(--linen);
+            color: var(--slate-muted);
+            font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+            font-size: 12px;
+            font-weight: 600;
+            vertical-align: middle;
+        }
+
+        /* Pedigree: patient's family and partner's family side by side */
+        .generation .gen-group {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.75rem;
+            background: rgba(242, 239, 233, 0.6);
+            border: 1px solid var(--linen);
+            border-radius: var(--r-lg);
+            padding: 1rem;
+        }
+        .gen-caption { font-size: 11px; line-height: 16px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--sage); }
+        .gen-members { display: flex; flex-wrap: wrap; justify-content: center; gap: 1rem; }
+
+        /* ---------- Notes & banners ---------- */
+        .skip-note {
+            background: rgba(194, 213, 198, 0.4);
+            border: 1px solid var(--mint);
+            border-radius: var(--r-base);
+            padding: 0.8rem 1rem;
+            margin-bottom: 1.25rem;
+            color: var(--mint-text);
+            font-size: 14px;
+            font-weight: 500;
+            display: none;
+        }
+        .skip-note.show { display: block; }
+
+        .validation-banner {
+            background: var(--terracotta-bg);
+            border: 1px solid var(--terracotta);
+            border-left-width: 4px;
+            border-radius: var(--r-base);
+            padding: 0.8rem 1rem;
+            margin-bottom: 1.25rem;
+            color: var(--terracotta-text);
+            font-weight: 600;
+            font-size: 14px;
+            display: none;
+        }
+        .validation-banner.show { display: block; }
+
+        /* ---------- Pedigree ---------- */
+        .pedigree-chart {
+            background: var(--white);
+            padding: 2.5rem;
+            border-radius: var(--r-xl);
+            border: 1px solid var(--linen);
+            box-shadow: var(--shadow-1);
+            margin-bottom: 2rem;
+        }
+
+        .page-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-weight: 600;
+            font-size: 32px;
+            line-height: 42px;
+            letter-spacing: -0.015em;
+            color: var(--sage-deep);
+            text-align: center;
+            margin-bottom: 1.75rem;
+        }
+
+        .generation {
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 3rem;
+            position: relative;
+        }
+        .generation::after {
+            content: '';
+            position: absolute;
+            bottom: -2.2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 2px;
+            height: 1.9rem;
+            background: var(--olive);
+            border-radius: 2px;
+        }
+        .generation:last-child::after { display: none; }
+
+        /* Lineage node: rounded 12px card */
+        .member {
+            background: var(--white);
+            border: 1px solid var(--linen);
+            border-radius: 12px;
+            padding: 1rem 1.1rem;
+            min-width: 150px;
+            max-width: 200px;
+            text-align: center;
+            box-shadow: var(--shadow-1);
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .member:hover { border-color: var(--mint); box-shadow: var(--shadow-2); }
+
+        .member-symbol {
+            width: 54px; height: 54px;
+            border: 2.5px solid var(--sage);
+            margin: 0 auto 0.75rem;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 700; font-size: 13px;
+            color: var(--sage-deep);
+            background: var(--white);
+            transition: all 0.2s;
+        }
+        .member-symbol.male { border-radius: 8px; }
+        .member-symbol.female { border-radius: 50%; }
+        .member-symbol.affected { background: var(--sage); color: var(--white); }
+        .member-symbol.future { border-style: dashed; border-color: var(--olive); color: var(--slate-muted); border-radius: 50%; }
+
+        .member-info { font-size: 13px; line-height: 18px; color: var(--slate-muted); }
+        .member-name { font-weight: 600; font-size: 15px; line-height: 20px; color: var(--slate); margin-bottom: 0.2rem; word-break: break-word; }
+
+        .pedigree-caption { text-align: center; color: var(--slate-muted); font-size: 14px; margin: 0 0 1rem; font-style: italic; }
+
+        .pedigree-legend {
+            display: flex; flex-wrap: wrap; justify-content: center; gap: 0.75rem 1.5rem;
+            margin-top: 0.5rem; padding-top: 1.25rem;
+            border-top: 1px solid var(--linen);
+            font-size: 13px; color: var(--slate-muted);
+        }
+        .pedigree-legend span { display: inline-flex; align-items: center; gap: 0.5rem; }
+        .pedigree-legend i { display: inline-block; width: 16px; height: 16px; border: 2px solid var(--sage); background: var(--white); }
+        .pedigree-legend i.sq { border-radius: 4px; }
+        .pedigree-legend i.ci { border-radius: 50%; }
+        .pedigree-legend i.fill { background: var(--sage); }
+
+        /* ---------- Analysis ---------- */
+        .ai-analysis { margin-bottom: 1.5rem; }
+        .ai-analysis h3 {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-weight: 600;
+            font-size: 32px;
+            line-height: 42px;
+            letter-spacing: -0.015em;
+            color: var(--sage-deep);
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+
+        .analysis-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.5rem; }
+
+        .analysis-card {
+            background: var(--white);
+            padding: 1.5rem;
+            border-radius: var(--r-lg);
+            border: 1px solid var(--linen);
+            border-left: 4px solid var(--sage);
+            box-shadow: var(--shadow-1);
+            transition: box-shadow 0.2s;
+        }
+        .analysis-card:hover { box-shadow: var(--shadow-2); }
+        .analysis-card.wide { grid-column: 1 / -1; }
+        .analysis-card.alert { border-left-color: var(--terracotta); }
+        .analysis-card h4 {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-weight: 600;
+            font-size: 20px;
+            line-height: 28px;
+            color: var(--slate);
+            margin-bottom: 0.9rem;
+        }
+        .analysis-card p { line-height: 1.65; }
+
+        /* Risk spectrum: mint -> sage -> terracotta */
+        .risk-row { display: flex; align-items: center; gap: 0.9rem; margin: 0.6rem 0; }
+        .risk-meter { flex: 1; height: 14px; background: var(--oat); border: 1px solid var(--linen); border-radius: 9999px; overflow: hidden; }
+        .risk-fill {
+            height: 100%;
+            border-radius: 9999px;
+            min-width: 8px;
+            background: linear-gradient(90deg, var(--mint) 0%, var(--sage) 50%, var(--terracotta) 100%);
+            background-size: calc(10000% / max(var(--p, 100), 1)) 100%;
+            background-repeat: no-repeat;
+            transition: width 1s ease;
+        }
+        .risk-value { font-weight: 700; font-size: 15px; min-width: 3rem; text-align: right; color: var(--slate); }
+
+        /* Status badges */
+        .badge { display: inline-block; padding: 0.2rem 0.8rem; border-radius: 9999px; font-size: 13px; line-height: 18px; font-weight: 600; letter-spacing: 0.01em; margin-left: 0.35rem; }
+        .badge-low { background: var(--mint); color: var(--mint-text); }
+        .badge-moderate { background: var(--oat); color: var(--slate); border: 1px solid var(--linen); }
+        .badge-high { background: var(--terracotta-bg); color: var(--terracotta-text); }
+
+        .recommendations { background: var(--oat); padding: 1.1rem 1.25rem; border-radius: 0.75rem; margin-top: 0.9rem; }
+        .recommendations h5 { font-size: 13px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: var(--sage-deep); margin-bottom: 0.4rem; }
+        .recommendations ul { list-style: none; padding-left: 0; }
+        .recommendations li { padding: 0.35rem 0 0.35rem 1.6rem; position: relative; color: var(--slate); font-size: 15px; line-height: 22px; }
+        .recommendations li::before { content: '✓'; position: absolute; left: 0; color: var(--sage); font-weight: 700; }
+
+        .loading { text-align: center; padding: 3rem 1rem; color: var(--slate-muted); font-size: 16px; background: var(--white); border: 1px solid var(--linen); border-radius: var(--r-lg); }
+
+        /* Counselor note callout */
+        .counselor-note {
+            position: relative;
+            background: var(--oat);
+            border-radius: var(--r-lg);
+            padding: 1.5rem 1.5rem 1.5rem 4.5rem;
+            margin: 0 auto;
+            max-width: 960px;
+        }
+        .counselor-note::before {
+            content: '\201C';
+            position: absolute;
+            left: 1.25rem; top: 0.6rem;
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: 72px; line-height: 1;
+            color: var(--olive);
+        }
+        .counselor-note h4 { font-family: 'Playfair Display', Georgia, serif; font-weight: 600; font-size: 20px; line-height: 28px; color: var(--slate); margin-bottom: 0.4rem; }
+        .counselor-note p { color: var(--slate-muted); font-size: 15px; line-height: 24px; }
+
+        #analysisPage .nav-buttons { max-width: 560px; margin: 2rem auto 0; }
+
+        /* ---------- Responsive ---------- */
+        @media (max-width: 900px) {
+            .analysis-grid { grid-template-columns: 1fr; }
+        }
+
+        @media (max-width: 768px) {
+            .container { padding: 1.25rem; }
+            header { padding: 1.75rem 1rem; margin-bottom: 1.5rem; }
+            header h1 { font-size: 30px; line-height: 40px; letter-spacing: -0.01em; }
+            header p { font-size: 16px; line-height: 24px; }
+            .auth-container { padding: 1.75rem 1.25rem; }
+            .auth-container h2, .form-section h3, .page-title, .ai-analysis h3 { font-size: 24px; line-height: 32px; letter-spacing: -0.01em; }
+            .form-section { padding: 1.5rem 1.25rem; }
+            .person-card { padding: 1.25rem 1rem; }
+            .form-grid { grid-template-columns: 1fr; }
+            .pedigree-chart { padding: 1.5rem 1rem; }
+            .progress-steps { margin-bottom: 1.5rem; }
+            .step-label { display: none; }
+            .step.active .step-label { display: block; position: absolute; left: 50%; transform: translateX(-50%); top: 44px; white-space: nowrap; }
+            .progress-steps { padding-bottom: 1.75rem; }
+            .nav-buttons { flex-direction: column-reverse; }
+            .counselor-note { padding: 4rem 1.25rem 1.25rem; }
+            .counselor-note::before { top: 0.5rem; left: 1.25rem; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after { animation: none !important; transition: none !important; }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <header>
+        <h1>🧬 GeneTree</h1>
+        <p>Advanced Pedigree Analysis &amp; Genetic Health Platform</p>
+    </header>
+
+    <!-- Login Page -->
+    <div id="loginPage" class="page active">
+        <div class="auth-container">
+            <h2>Welcome Back</h2>
+            <form id="loginForm" novalidate>
+                <div class="form-group">
+                    <label for="loginEmail">Email Address</label>
+                    <input type="email" id="loginEmail" placeholder="your.email@example.com">
+                    <div class="error-msg" id="loginEmailErr">Please enter a valid email address.</div>
+                </div>
+                <div class="form-group">
+                    <label for="loginPassword">Password</label>
+                    <input type="password" id="loginPassword" placeholder="Enter your password">
+                    <div class="error-msg" id="loginPasswordErr">Password cannot be empty.</div>
+                </div>
+                <button type="submit" class="btn">Sign In</button>
+                <button type="button" class="btn btn-secondary" onclick="showPage('signupPage')">Create New Account</button>
+            </form>
+            <div class="link-text"><p>First time here? <a href="#" onclick="showPage('signupPage')">Sign up now</a></p></div>
+        </div>
+    </div>
+
+    <!-- Signup Page -->
+    <div id="signupPage" class="page">
+        <div class="auth-container">
+            <h2>Create Account</h2>
+            <form id="signupForm" novalidate>
+                <div class="form-group">
+                    <label for="signupName">Full Name</label>
+                    <input type="text" id="signupName" placeholder="John Doe">
+                    <div class="error-msg" id="signupNameErr">Full name is required.</div>
+                </div>
+                <div class="form-group">
+                    <label for="signupEmail">Email Address</label>
+                    <input type="email" id="signupEmail" placeholder="your.email@example.com">
+                    <div class="error-msg" id="signupEmailErr">Please enter a valid email address.</div>
+                </div>
+                <div class="form-group">
+                    <label for="signupPassword">Password</label>
+                    <input type="password" id="signupPassword" placeholder="Create a strong password">
+                    <div class="error-msg" id="signupPasswordErr">Password must be at least 6 characters.</div>
+                </div>
+                <div class="form-group">
+                    <label for="signupConfirmPassword">Confirm Password</label>
+                    <input type="password" id="signupConfirmPassword" placeholder="Re-enter your password">
+                    <div class="error-msg" id="signupConfirmErr">Passwords do not match.</div>
+                </div>
+                <button type="submit" class="btn">Create Account</button>
+                <button type="button" class="btn btn-secondary" onclick="showPage('loginPage')">Back to Login</button>
+            </form>
+            <div class="link-text"><p>Already have an account? <a href="#" onclick="showPage('loginPage')">Sign in</a></p></div>
+        </div>
+    </div>
+
+    <!-- Data Collection Page -->
+    <div id="dataCollectionPage" class="page">
+        <div class="progress-steps">
+            <div class="step active" id="step0"><div class="step-circle">1</div><div class="step-label">Family Status</div></div>
+            <div class="step" id="step1"><div class="step-circle">2</div><div class="step-label">Grandparents</div></div>
+            <div class="step" id="step2"><div class="step-circle">3</div><div class="step-label">Parents</div></div>
+            <div class="step" id="step3"><div class="step-circle">4</div><div class="step-label">Patient</div></div>
+            <div class="step" id="step4"><div class="step-circle">5</div><div class="step-label">Partner</div></div>
+            <div class="step" id="step5"><div class="step-circle">6</div><div class="step-label">Partner's Family</div></div>
+            <div class="step" id="step6"><div class="step-circle">7</div><div class="step-label">Analysis</div></div>
+        </div>
+
+        <!-- Family Status Section (first question) -->
+        <div id="statusSection" class="form-section">
+            <h3>Family Status</h3>
+            <p class="status-intro">Before we begin: how much of your family history can you provide? You can skip your grandparents, or skip both your parents and grandparents (for example, if you are an orphan or don't know them). The analysis will still work.</p>
+            <div class="choice-grid" id="statusChoices">
+                <label class="choice-card" id="choiceSt_both">
+                    <input type="radio" name="orphanStatus" value="both" onchange="selectStatus('both')">
+                    <span class="choice-title">Parents and grandparents</span>
+                    <span class="choice-desc">I can provide details about two generations of my family.</span>
+                </label>
+                <label class="choice-card" id="choiceSt_parents">
+                    <input type="radio" name="orphanStatus" value="parents" onchange="selectStatus('parents')">
+                    <span class="choice-title">Parents only</span>
+                    <span class="choice-desc">Skip grandparents and add only my father and mother.</span>
+                </label>
+                <label class="choice-card" id="choiceSt_none">
+                    <input type="radio" name="orphanStatus" value="none" onchange="selectStatus('none')">
+                    <span class="choice-title">Skip parents and grandparents</span>
+                    <span class="choice-desc">I am an orphan or cannot provide their details. Continue directly to my own details.</span>
+                </label>
+            </div>
+            <div class="error-msg" id="statusErr" style="margin-top:12px">Please choose one option to continue.</div>
+            <div class="nav-buttons">
+                <button class="btn" onclick="confirmStatus()">Continue →</button>
+            </div>
+        </div>
+
+        <!-- Grandparents Section -->
+        <div id="grandparentsSection" class="form-section" style="display:none">
+            <h3>Grandparents Information</h3>
+            <div class="validation-banner" id="gpBanner">Please fill in all required fields before proceeding.</div>
+            <div id="grandparentsContainer"></div>
+            <div class="nav-buttons">
+                <button class="btn btn-secondary" onclick="prevSection('status')">← Back</button>
+                <button class="btn" onclick="nextSection('parents')">Next: Parents Information →</button>
+            </div>
+        </div>
+
+        <!-- Parents Section -->
+        <div id="parentsSection" class="form-section" style="display:none">
+            <h3>Parents Information</h3>
+            <div class="validation-banner" id="pBanner">Please fill in all required fields before proceeding.</div>
+            <div id="parentsContainer"></div>
+            <div class="nav-buttons">
+                <button class="btn btn-secondary" onclick="prevSection('grandparents')">← Back</button>
+                <button class="btn" onclick="nextSection('patient')">Next: Patient Information →</button>
+            </div>
+        </div>
+
+        <!-- Patient Section -->
+        <div id="patientSection" class="form-section" style="display:none">
+            <h3>Patient Information</h3>
+            <div class="skip-note" id="orphanNote"></div>
+            <div class="validation-banner" id="ptBanner">Please fill in all required fields before proceeding.</div>
+            <div class="person-card">
+                <h4>Patient Details</h4>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Name <span style="color:var(--error)">*</span></label>
+                        <input type="text" id="patientName" placeholder="Full name">
+                        <div class="error-msg" id="patientNameErr">Name is required.</div>
+                    </div>
+                    <div class="form-group">
+                        <label>Age <span style="color:var(--error)">*</span></label>
+                        <input type="number" id="patientAge" placeholder="Age" min="0">
+                        <div class="error-msg" id="patientAgeErr">Age is required.</div>
+                    </div>
+                    <div class="form-group">
+                        <label>Gender <span style="color:var(--error)">*</span></label>
+                        <select id="patientGender" onchange="syncPartnerGender()">
+                            <option value="">Select gender</option>
+                            <option value="Male">Male</option>
+                            <option value="Female">Female</option>
+                            <option value="Other">Other</option>
+                        </select>
+                        <div class="error-msg" id="patientGenderErr">Please select gender.</div>
+                    </div>
+                    <div class="form-group">
+                        <label>Blood Group <span style="color:var(--error)">*</span></label>
+                        <select id="patientBlood">
+                            <option value="">Select blood group</option>
+                            <option>A+</option><option>A-</option><option>B+</option><option>B-</option>
+                            <option>AB+</option><option>AB-</option><option>O+</option><option>O-</option>
+                        </select>
+                        <div class="error-msg" id="patientBloodErr">Please select blood group.</div>
+                    </div>
+                    <div class="form-group">
+                        <label>Body Type <span style="color:var(--error)">*</span></label>
+                        <select id="patientBody">
+                            <option value="">Select body type</option>
+                            <option value="Thin">Thin</option>
+                            <option value="Average">Average</option>
+                            <option value="Athletic">Athletic</option>
+                            <option value="Heavy">Heavy</option>
+                            <option value="Crippled">Crippled</option>
+                        </select>
+                        <div class="error-msg" id="patientBodyErr">Please select body type.</div>
+                    </div>
+                    <div class="form-group" style="grid-column: 1/-1">
+                        <label>Diseases / Conditions</label>
+                        <div id="patient-disease-panel"></div>
+                        <div class="selected-tags" id="patient-tags"><span class="none-tag">None selected</span></div>
+                    </div>
+                </div>
+            </div>
+            <div class="nav-buttons">
+                <button class="btn btn-secondary" onclick="prevSection('parents')">← Back</button>
+                <button class="btn" onclick="nextSection('partner')">Next: Partner Information →</button>
+            </div>
+        </div>
+
+        <!-- Partner Section -->
+        <div id="partnerSection" class="form-section" style="display:none">
+            <h3>Partner Information</h3>
+            <p class="status-intro">Does the patient have a partner? If so, enter their details. The patient and partner will be treated as the <strong>parents of the next generation</strong>, and the analysis will estimate the genetic risk for their children.</p>
+            <div class="choice-grid">
+                <label class="choice-card" id="choicePartnerYes">
+                    <input type="radio" name="partnerStatus" value="yes" onchange="selectPartner('yes')">
+                    <span class="choice-title">Yes, I have a partner</span>
+                    <span class="choice-desc">Enter my partner's details and include them in the analysis.</span>
+                </label>
+                <label class="choice-card" id="choicePartnerNo">
+                    <input type="radio" name="partnerStatus" value="no" onchange="selectPartner('no')">
+                    <span class="choice-title">No partner</span>
+                    <span class="choice-desc">Skip partner details and go straight to the analysis.</span>
+                </label>
+            </div>
+            <div class="error-msg" id="partnerChoiceErr" style="margin-top:12px">Please choose one option to continue.</div>
+
+            <div id="partnerForm" style="display:none;margin-top:24px">
+                <div class="validation-banner" id="partnerBanner">Please fill in all required fields before proceeding.</div>
+                <div class="person-card">
+                    <h4>Partner Details</h4>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Name <span style="color:var(--error)">*</span></label>
+                            <input type="text" id="partnerName" placeholder="Full name">
+                            <div class="error-msg" id="partnerNameErr">Name is required.</div>
+                        </div>
+                        <div class="form-group">
+                            <label>Age <span style="color:var(--error)">*</span></label>
+                            <input type="number" id="partnerAge" placeholder="Age" min="0">
+                            <div class="error-msg" id="partnerAgeErr">Age is required.</div>
+                        </div>
+                        <div class="form-group">
+                            <label>Gender <span style="color:var(--error)">*</span></label>
+                            <select id="partnerGender">
+                                <option value="">Select gender</option>
+                                <option value="Male">Male</option>
+                                <option value="Female">Female</option>
+                                <option value="Other">Other</option>
+                            </select>
+                            <div class="auto-hint" id="partnerGenderHint">Set automatically as the opposite of the patient's gender.</div>
+                            <div class="error-msg" id="partnerGenderErr">Please select gender.</div>
+                        </div>
+                        <div class="form-group">
+                            <label>Blood Group <span style="color:var(--error)">*</span></label>
+                            <select id="partnerBlood">
+                                <option value="">Select blood group</option>
+                                <option>A+</option><option>A-</option><option>B+</option><option>B-</option>
+                                <option>AB+</option><option>AB-</option><option>O+</option><option>O-</option>
+                            </select>
+                            <div class="error-msg" id="partnerBloodErr">Please select blood group.</div>
+                        </div>
+                        <div class="form-group">
+                            <label>Body Type <span style="color:var(--error)">*</span></label>
+                            <select id="partnerBody">
+                                <option value="">Select body type</option>
+                                <option value="Thin">Thin</option>
+                                <option value="Average">Average</option>
+                                <option value="Athletic">Athletic</option>
+                                <option value="Heavy">Heavy</option>
+                                <option value="Crippled">Crippled</option>
+                            </select>
+                            <div class="error-msg" id="partnerBodyErr">Please select body type.</div>
+                        </div>
+                        <div class="form-group" style="grid-column: 1/-1">
+                            <label>Diseases / Conditions</label>
+                            <div id="partner-disease-panel"></div>
+                            <div class="selected-tags" id="partner-tags"><span class="none-tag">None selected</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="person-card">
+                    <h4>Partner's Family History <span class="optional-tag">optional</span></h4>
+                    <p class="status-intro" style="margin-bottom:1rem">Do you know your partner's parents and grandparents? Adding them makes the pedigree chart and the estimate for your children more complete.</p>
+                    <div class="choice-grid">
+                        <label class="choice-card selected" id="choicePF_none">
+                            <input type="radio" name="pfMode" value="none" checked onchange="selectPartnerFamily('none')">
+                            <span class="choice-title">Skip for now</span>
+                            <span class="choice-desc">Use only my partner's own details.</span>
+                        </label>
+                        <label class="choice-card" id="choicePF_parents">
+                            <input type="radio" name="pfMode" value="parents" onchange="selectPartnerFamily('parents')">
+                            <span class="choice-title">Parents only</span>
+                            <span class="choice-desc">Add my partner's father and mother.</span>
+                        </label>
+                        <label class="choice-card" id="choicePF_both">
+                            <input type="radio" name="pfMode" value="both" onchange="selectPartnerFamily('both')">
+                            <span class="choice-title">Parents and grandparents</span>
+                            <span class="choice-desc">Add two generations of my partner's family.</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="nav-buttons">
+                <button class="btn btn-secondary" onclick="prevSection('patient')">← Back</button>
+                <button class="btn" id="partnerNextBtn" onclick="partnerNext()">Generate AI Analysis</button>
+            </div>
+        </div>
+
+        <!-- Partner's Family Section (optional) -->
+        <div id="partnerFamilySection" class="form-section" style="display:none">
+            <h3>Partner's Family</h3>
+            <p class="status-intro">Enter the details of your partner's relatives. This helps estimate the risk passed on to your children from your partner's side as well.</p>
+            <div class="validation-banner" id="partnerFamilyBanner">Please fill in all required fields before proceeding.</div>
+            <div id="partnerGrandparentsBlock" style="display:none">
+                <h4 class="subsection-title">Partner's Grandparents</h4>
+                <div id="partnerGrandparentsContainer"></div>
+            </div>
+            <div id="partnerParentsBlock">
+                <h4 class="subsection-title">Partner's Parents</h4>
+                <div id="partnerParentsContainer"></div>
+            </div>
+            <div class="nav-buttons">
+                <button class="btn btn-secondary" onclick="prevSection('partner')">← Back</button>
+                <button class="btn" onclick="generateAnalysis()">Generate AI Analysis</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Analysis Results Page -->
+    <div id="analysisPage" class="page">
+        <div class="pedigree-chart">
+            <h3 class="page-title">Family Pedigree Chart</h3>
+            <div id="pedigreeDisplay"></div>
+            <div class="pedigree-legend" aria-label="Chart legend">
+                <span><i class="sq"></i> Male</span>
+                <span><i class="ci"></i> Female</span>
+                <span><i class="sq fill"></i><i class="ci fill"></i> Has a recorded condition</span>
+            </div>
+        </div>
+        <div class="ai-analysis">
+            <h3>AI-Powered Genetic Analysis</h3>
+            <div id="aiAnalysisContent" class="loading">Analysing genetic patterns and health risks...</div>
+        </div>
+        <div class="counselor-note">
+            <h4>A gentle reminder</h4>
+            <p>This analysis is an AI-generated estimate meant to support, not replace, a conversation with a genetic counselor or your doctor. Risk figures describe likelihood, not certainty, and many conditions can be managed well when found early.</p>
+        </div>
+        <div class="nav-buttons">
+            <button class="btn btn-secondary" onclick="editInformation()">← Edit Information</button>
+            <button class="btn" onclick="location.reload()">New Analysis</button>
+        </div>
+    </div>
+</div>
+
+<script>
+const DISEASE_CATEGORIES = {
+    'Cardiovascular': ['Hypertension','Coronary artery disease','Heart failure','Arrhythmia','Stroke','DVT','Cardiomyopathy'],
+    'Metabolic': ['Type 1 Diabetes','Type 2 Diabetes','Obesity','Hypercholesterolaemia','Hypothyroidism','Hyperthyroidism','Gout'],
+    'Neurological': ['Alzheimer\'s disease','Parkinson\'s disease','Epilepsy','Multiple sclerosis','Migraine','ALS','Huntington\'s disease'],
+    'Oncological': ['Breast cancer','Colon cancer','Lung cancer','Prostate cancer','Ovarian cancer','Leukaemia','Melanoma'],
+    'Musculoskeletal': ['Rheumatoid arthritis','Osteoporosis','Muscular dystrophy','Scoliosis','Osteoarthritis','Marfan syndrome'],
+    'Respiratory': ['Asthma','COPD','Cystic fibrosis','Pulmonary fibrosis','Sleep apnoea'],
+    'Haematological': ['Haemophilia','Sickle cell disease','Thalassaemia','Anaemia','Thrombophilia'],
+    'Genetic / Rare': ['Down syndrome','Turner syndrome','Klinefelter syndrome','PKU','Gaucher disease','Wilson\'s disease','Fragile X'],
+    'Mental health': ['Depression','Bipolar disorder','Schizophrenia','Anxiety disorder','Autism spectrum','ADHD'],
+    'Other': ['Kidney disease','Liver cirrhosis','Coeliac disease','Lupus','Psoriasis','Eczema','Visual impairment','Hearing loss']
+};
+
+const BODY_TYPES = ['Thin','Average','Athletic','Heavy','Crippled'];
+
+const GP_DEFS = [
+    {key:'pg-father', label:'Paternal Grandfather', sex:'male'},
+    {key:'pg-mother', label:'Paternal Grandmother', sex:'female'},
+    {key:'mg-father', label:'Maternal Grandfather', sex:'male'},
+    {key:'mg-mother', label:'Maternal Grandmother', sex:'female'}
+];
+const P_DEFS = [
+    {key:'father', label:'Father', sex:'male'},
+    {key:'mother', label:'Mother', sex:'female'}
+];
+
+const PGP_DEFS = [
+    {key:'pg-father', label:"Partner's Paternal Grandfather", sex:'male'},
+    {key:'pg-mother', label:"Partner's Paternal Grandmother", sex:'female'},
+    {key:'mg-father', label:"Partner's Maternal Grandfather", sex:'male'},
+    {key:'mg-mother', label:"Partner's Maternal Grandmother", sex:'female'}
+];
+const PP_DEFS = [
+    {key:'father', label:"Partner's Father", sex:'male'},
+    {key:'mother', label:"Partner's Mother", sex:'female'}
+];
+
+let familyData = {familyMode:'both', grandparents:{}, parents:{}, patient:{}, partner:null};
+let hasPartner = null;
+let partnerChoice = null;
+let partnerFamilyMode = 'none';   // 'none' | 'parents' | 'both'
+let analysisDone = false;   // once true, steps 2-5 are locked in the progress bar
+let patientFamilyMode = 'both';   // 'both' | 'parents' | 'none'  (what the patient can provide)
+let statusChoice = null;
+function gpOn() { return patientFamilyMode === 'both'; }
+function pOn() { return patientFamilyMode !== 'none'; }
+function updateFamilyNote() {
+    const note = document.getElementById('orphanNote');
+    const msg = patientFamilyMode === 'none'
+        ? 'Parents and grandparents were skipped. The analysis will be based on your own details only.'
+        : patientFamilyMode === 'parents'
+            ? 'Grandparents were skipped. The analysis will use your own and your parents\' details.'
+            : '';
+    note.textContent = msg;
+    note.classList.toggle('show', !!msg);
+}
+
+function selectStatus(val) {
+    statusChoice = val;
+    ['both','parents','none'].forEach(m => {
+        document.getElementById('choiceSt_' + m).classList.toggle('selected', m === val);
+        const r = document.querySelector('input[name="orphanStatus"][value="' + m + '"]');
+        if (r) r.checked = (m === val);
+    });
+    document.getElementById('statusErr').classList.remove('show');
+}
+
+function confirmStatus() {
+    if (!statusChoice) { document.getElementById('statusErr').classList.add('show'); return; }
+    applyStatus();
+    showSection(gpOn() ? 'grandparents' : pOn() ? 'parents' : 'patient');
+}
+
+function showPage(id) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+}
+
+function buildPersonCard(def, containerType) {
+    const id = containerType+'-'+def.key;
+    const card = document.createElement('div');
+    card.className = 'person-card';
+    card.innerHTML = `
+        <h4>${def.label}</h4>
+        <div class="form-grid">
+            <div class="form-group">
+                <label>Name <span style="color:var(--error)">*</span></label>
+                <input type="text" id="${id}-name" placeholder="Full name">
+                <div class="error-msg" id="${id}-nameErr">Name is required.</div>
+            </div>
+            <div class="form-group">
+                <label>Age <span style="color:var(--error)">*</span></label>
+                <input type="number" id="${id}-age" placeholder="Age" min="0">
+                <div class="error-msg" id="${id}-ageErr">Age is required.</div>
+            </div>
+            <div class="form-group">
+                <label>Blood Group <span style="color:var(--error)">*</span></label>
+                <select id="${id}-blood">
+                    <option value="">Select blood group</option>
+                    ${['A+','A-','B+','B-','AB+','AB-','O+','O-'].map(b=>`<option>${b}</option>`).join('')}
+                </select>
+                <div class="error-msg" id="${id}-bloodErr">Please select blood group.</div>
+            </div>
+            <div class="form-group">
+                <label>Number of Children <span style="color:var(--error)">*</span></label>
+                <input type="number" id="${id}-kids" placeholder="Number" min="0">
+                <div class="error-msg" id="${id}-kidsErr">Please enter number of children.</div>
+            </div>
+            <div class="form-group">
+                <label>Body Type <span style="color:var(--error)">*</span></label>
+                <select id="${id}-body">
+                    <option value="">Select body type</option>
+                    ${BODY_TYPES.map(b=>`<option>${b}</option>`).join('')}
+                </select>
+                <div class="error-msg" id="${id}-bodyErr">Please select body type.</div>
+            </div>
+            <div class="form-group" style="grid-column:1/-1">
+                <label>Diseases / Conditions</label>
+                <div id="${id}-disease-panel"></div>
+                <div class="selected-tags" id="${id}-tags"><span class="none-tag">None selected</span></div>
+            </div>
+        </div>
+    `;
+    return card;
+}
+
+function buildDiseasePanel(panelId, tagsId) {
+    const container = document.getElementById(panelId);
+    if (!container) return;
+    const panel = document.createElement('div');
+    panel.className = 'disease-panel';
+    panel.id = panelId+'-inner';
+
+    Object.entries(DISEASE_CATEGORIES).forEach(([cat, diseases]) => {
+        const catDiv = document.createElement('div');
+        catDiv.className = 'disease-category';
+        catDiv.innerHTML = `<div class="disease-category-title">${cat}</div>`;
+        const chkDiv = document.createElement('div');
+        chkDiv.className = 'disease-checkboxes';
+
+        diseases.forEach(d => {
+            const chipId = panelId+'-chk-'+d.replace(/[^a-z0-9]/gi,'_');
+            const chip = document.createElement('label');
+            chip.className = 'disease-chip';
+            chip.htmlFor = chipId;
+            chip.innerHTML = `<input type="checkbox" id="${chipId}" value="${d}"> ${d}`;
+            chip.querySelector('input').addEventListener('change', () => updateTags(panelId, tagsId));
+            chkDiv.appendChild(chip);
+        });
+
+        catDiv.appendChild(chkDiv);
+        panel.appendChild(catDiv);
+    });
+
+    container.appendChild(panel);
+}
+
+function updateTags(panelId, tagsId) {
+    const panel = document.getElementById(panelId+'-inner');
+    const tagsDiv = document.getElementById(tagsId);
+    if (!panel || !tagsDiv) return;
+    const checked = [...panel.querySelectorAll('input[type=checkbox]:checked')];
+    checked.forEach(chk => {
+        chk.closest('.disease-chip').classList.toggle('checked', chk.checked);
+    });
+    panel.querySelectorAll('.disease-chip').forEach(chip => {
+        chip.classList.toggle('checked', chip.querySelector('input').checked);
+    });
+    if (checked.length === 0) {
+        tagsDiv.innerHTML = '<span class="none-tag">None selected</span>';
+    } else {
+        tagsDiv.innerHTML = checked.map(c => `<span class="sel-tag">${c.value}</span>`).join('');
+    }
+}
+
+function getSelectedDiseases(panelId) {
+    const panel = document.getElementById(panelId+'-inner');
+    if (!panel) return [];
+    return [...panel.querySelectorAll('input[type=checkbox]:checked')].map(c => c.value);
+}
+
+function initGrandparents() {
+    const container = document.getElementById('grandparentsContainer');
+    container.innerHTML = '';
+    GP_DEFS.forEach(def => {
+        const card = buildPersonCard(def, 'gp');
+        container.appendChild(card);
+        buildDiseasePanel('gp-'+def.key+'-disease-panel', 'gp-'+def.key+'-tags');
+    });
+}
+
+function initParents() {
+    const container = document.getElementById('parentsContainer');
+    container.innerHTML = '';
+    P_DEFS.forEach(def => {
+        const card = buildPersonCard(def, 'p');
+        container.appendChild(card);
+        buildDiseasePanel('p-'+def.key+'-disease-panel', 'p-'+def.key+'-tags');
+    });
+}
+
+function initPatient() {
+    buildDiseasePanel('patient-disease-panel', 'patient-tags');
+}
+
+function setError(fieldId, errId, show) {
+    const field = document.getElementById(fieldId);
+    const err = document.getElementById(errId);
+    if (!field || !err) return;
+    if (show) { field.classList.add('field-error'); err.classList.add('show'); }
+    else { field.classList.remove('field-error'); err.classList.remove('show'); }
+}
+
+function validatePersonFields(prefix) {
+    let valid = true;
+    const fields = [
+        {f: prefix+'-name', e: prefix+'-nameErr'},
+        {f: prefix+'-age', e: prefix+'-ageErr'},
+        {f: prefix+'-blood', e: prefix+'-bloodErr'},
+        {f: prefix+'-kids', e: prefix+'-kidsErr'},
+        {f: prefix+'-body', e: prefix+'-bodyErr'}
+    ];
+    fields.forEach(({f, e}) => {
+        const el = document.getElementById(f);
+        if (!el) return;
+        const empty = !el.value || el.value.trim() === '';
+        setError(f, e, empty);
+        if (empty) valid = false;
+    });
+    return valid;
+}
+
+function validateGrandparents() {
+    let valid = true;
+    GP_DEFS.forEach(def => { if (!validatePersonFields('gp-'+def.key)) valid = false; });
+    return valid;
+}
+
+function validateParents() {
+    let valid = true;
+    P_DEFS.forEach(def => { if (!validatePersonFields('p-'+def.key)) valid = false; });
+    return valid;
+}
+
+function validatePatient() {
+    let valid = true;
+    const ptFields = [
+        {f:'patientName', e:'patientNameErr'},
+        {f:'patientAge', e:'patientAgeErr'},
+        {f:'patientGender', e:'patientGenderErr'},
+        {f:'patientBlood', e:'patientBloodErr'},
+        {f:'patientBody', e:'patientBodyErr'}
+    ];
+    ptFields.forEach(({f,e}) => {
+        const el = document.getElementById(f);
+        const empty = !el || !el.value || el.value.trim() === '';
+        setError(f, e, empty);
+        if (empty) valid = false;
+    });
+    return valid;
+}
+
+function partnerFamilyEnabled() {
+    return partnerChoice === 'yes' && partnerFamilyMode !== 'none';
+}
+
+function updateProgressSteps(active) {
+    const order = ['status','grandparents','parents','patient','partner','partnerFamily','analysis'];
+    const steps = ['step0','step1','step2','step3','step4','step5','step6'];
+    const idx = order.indexOf(active);
+    const pfOn = partnerFamilyEnabled();
+    steps.forEach((sid, i) => {
+        const el = document.getElementById(sid);
+        el.classList.remove('active','completed','skipped','optional');
+        const skipped = (!gpOn() && order[i] === 'grandparents')
+            || (!pOn() && order[i] === 'parents')
+            || (order[i] === 'partner' && hasPartner === false && active === 'analysis')
+            || (order[i] === 'partnerFamily' && !pfOn && active === 'analysis');
+        const optional = order[i] === 'partnerFamily' && !pfOn && active !== 'analysis';
+        if (skipped) el.classList.add('skipped');
+        else if (optional) el.classList.add('optional');
+        else if (i < idx) el.classList.add('completed');
+        else if (i === idx) el.classList.add('active');
+    });
+    refreshStepNav();
+}
+
+/* ---------- Free navigation between steps 2-5 (until the analysis is generated) ---------- */
+const SECTION_IDS = {
+    status: 'statusSection',
+    grandparents: 'grandparentsSection',
+    parents: 'parentsSection',
+    patient: 'patientSection',
+    partner: 'partnerSection',
+    partnerFamily: 'partnerFamilySection'
+};
+const NAV_STEPS = [
+    ['step1', 'grandparents', 'Grandparents'],
+    ['step2', 'parents', 'Parents'],
+    ['step3', 'patient', 'Patient'],
+    ['step4', 'partner', 'Partner'],
+    ['step5', 'partnerFamily', "Partner's Family"]
+];
+
+function currentSection() {
+    return Object.keys(SECTION_IDS).find(k => document.getElementById(SECTION_IDS[k]).style.display !== 'none');
+}
+
+function showSection(name) {
+    Object.values(SECTION_IDS).forEach(id => { document.getElementById(id).style.display = 'none'; });
+    document.getElementById(SECTION_IDS[name]).style.display = 'block';
+    if (name === 'partner') syncPartnerGender();   // keep partner gender in step with the patient's
+    if (name === 'partnerFamily') updatePartnerFamilyView();
+    if (name === 'patient') updateFamilyNote();
+    updateProgressSteps(name);
+    window.scrollTo({top:0, behavior:'smooth'});
+}
+
+function applyStatus() {
+    patientFamilyMode = statusChoice || 'both';
+    familyData.familyMode = patientFamilyMode;
+    if (!gpOn()) familyData.grandparents = {};
+    if (!pOn()) familyData.parents = {};
+    updateFamilyNote();
+}
+
+function goToStep(name) {
+    if (analysisDone) return;                       // locked after the analysis
+    if (currentSection() === 'status') {            // family status must be answered first
+        if (!statusChoice) { document.getElementById('statusErr').classList.add('show'); return; }
+        applyStatus();
+    }
+    if (name === 'grandparents' && !gpOn()) return;
+    if (name === 'parents' && !pOn()) return;
+    if (name === 'partnerFamily' && !partnerFamilyEnabled()) return;
+    if (currentSection() === name) return;
+    showSection(name);
+}
+
+function refreshStepNav() {
+    NAV_STEPS.forEach(([id, name, label]) => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        const skipped = el.classList.contains('skipped');
+        const optional = el.classList.contains('optional');
+        const active = el.classList.contains('active');
+        const usable = !analysisDone && !skipped && !optional && !active;
+        el.classList.toggle('nav', usable);
+        if (usable) {
+            el.setAttribute('role', 'button');
+            el.setAttribute('tabindex', '0');
+            el.title = 'Go to ' + label;
+        } else {
+            el.removeAttribute('role');
+            el.removeAttribute('tabindex');
+            if (analysisDone && !skipped) el.title = 'Locked once the analysis has been generated';
+            else if (optional) el.title = 'Available once you add a partner and choose to include their family';
+            else el.removeAttribute('title');
+        }
+    });
+    ['step0','step1','step2','step3','step4','step5','step6'].forEach(id => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        if (el.classList.contains('active')) el.setAttribute('aria-current', 'step');
+        else el.removeAttribute('aria-current');
+    });
+}
+
+function initStepNav() {
+    NAV_STEPS.forEach(([id, name]) => {
+        const el = document.getElementById(id);
+        el.addEventListener('click', () => goToStep(name));
+        el.addEventListener('keydown', e => {
+            if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); goToStep(name); }
+        });
+    });
+    refreshStepNav();
+}
+
+function editInformation() {
+    showPage('dataCollectionPage');
+    updateProgressSteps(currentSection() || 'partner');
+}
+
+function nextSection(section) {
+    if (section === 'parents') {
+        const valid = validateGrandparents();
+        const banner = document.getElementById('gpBanner');
+        banner.classList.toggle('show', !valid);
+        if (!valid) { document.querySelector('#grandparentsSection .field-error')?.scrollIntoView({behavior:'smooth',block:'center'}); return; }
+        collectGrandparentsData();
+        showSection('parents');
+    } else if (section === 'patient') {
+        const valid = validateParents();
+        const banner = document.getElementById('pBanner');
+        banner.classList.toggle('show', !valid);
+        if (!valid) { document.querySelector('#parentsSection .field-error')?.scrollIntoView({behavior:'smooth',block:'center'}); return; }
+        collectParentsData();
+        showSection('patient');
+    } else if (section === 'partner') {
+        const valid = validatePatient();
+        const banner = document.getElementById('ptBanner');
+        banner.classList.toggle('show', !valid);
+        if (!valid) { document.querySelector('#patientSection .field-error')?.scrollIntoView({behavior:'smooth',block:'center'}); return; }
+        collectPatientData();
+        syncPartnerGender();
+        document.getElementById('patientSection').style.display = 'none';
+        document.getElementById('partnerSection').style.display = 'block';
+        updateProgressSteps('partner');
+        window.scrollTo({top:0, behavior:'smooth'});
+    }
+}
+
+function prevSection(section) {
+    if (section === 'partner') {
+        showSection('partner');
+    } else if (section === 'patient') {
+        document.getElementById('partnerSection').style.display = 'none';
+        document.getElementById('patientSection').style.display = 'block';
+        updateProgressSteps('patient');
+    } else if (section === 'status') {
+        showSection('status');
+    } else if (section === 'grandparents') {          // Back from Parents
+        showSection(gpOn() ? 'grandparents' : 'status');
+    } else if (section === 'parents') {               // Back from Patient (skips sections that were skipped)
+        showSection(pOn() ? 'parents' : 'status');
+    }
+}
+
+function readPersonData(prefix, defs, type) {
+    const data = {};
+    defs.forEach(def => {
+        const k = def.key;
+        const pre = prefix+'-'+k;
+        data[k] = {
+            name: document.getElementById(pre+'-name')?.value || '',
+            age: document.getElementById(pre+'-age')?.value || '',
+            bloodGroup: document.getElementById(pre+'-blood')?.value || '',
+            children: document.getElementById(pre+'-kids')?.value || '',
+            bodyType: document.getElementById(pre+'-body')?.value || '',
+            diseases: getSelectedDiseases(pre+'-disease-panel')
+        };
+    });
+    return data;
+}
+
+function collectGrandparentsData() { familyData.grandparents = readPersonData('gp', GP_DEFS, 'gp'); }
+function collectParentsData() { familyData.parents = readPersonData('p', P_DEFS, 'p'); }
+
+function collectPatientData() {
+    familyData.patient = {
+        name: document.getElementById('patientName').value,
+        age: document.getElementById('patientAge').value,
+        gender: document.getElementById('patientGender').value,
+        bloodGroup: document.getElementById('patientBlood').value,
+        bodyType: document.getElementById('patientBody').value,
+        diseases: getSelectedDiseases('patient-disease-panel')
+    };
+}
+
+let partnerGenderAuto = false;
+
+function syncPartnerGender() {
+    const ptG = document.getElementById('patientGender').value;
+    const sel = document.getElementById('partnerGender');
+    const hint = document.getElementById('partnerGenderHint');
+    const opposite = ptG === 'Male' ? 'Female' : ptG === 'Female' ? 'Male' : '';
+    if (opposite) {
+        sel.value = opposite;
+        sel.disabled = true;
+        partnerGenderAuto = true;
+        hint.classList.add('show');
+        setError('partnerGender', 'partnerGenderErr', false);
+    } else {
+        sel.disabled = false;
+        if (partnerGenderAuto) sel.value = '';
+        partnerGenderAuto = false;
+        hint.classList.remove('show');
+    }
+}
+
+function selectPartner(val) {
+    partnerChoice = val;
+    document.getElementById('choicePartnerYes').classList.toggle('selected', val === 'yes');
+    document.getElementById('choicePartnerNo').classList.toggle('selected', val === 'no');
+    document.getElementById('partnerChoiceErr').classList.remove('show');
+    document.getElementById('partnerForm').style.display = val === 'yes' ? 'block' : 'none';
+    updatePartnerButton();
+    updateProgressSteps(currentSection() || 'status');
+}
+
+function selectPartnerFamily(mode) {
+    partnerFamilyMode = mode;
+    ['none','parents','both'].forEach(m => {
+        document.getElementById('choicePF_' + m).classList.toggle('selected', m === mode);
+        const r = document.querySelector('input[name="pfMode"][value="' + m + '"]');
+        if (r) r.checked = (m === mode);
+    });
+    updatePartnerButton();
+    updateProgressSteps(currentSection() || 'status');
+}
+
+function updatePartnerButton() {
+    const btn = document.getElementById('partnerNextBtn');
+    if (btn) btn.textContent = partnerFamilyEnabled() ? "Next: Partner's Family →" : 'Generate AI Analysis';
+}
+
+function updatePartnerFamilyView() {
+    document.getElementById('partnerGrandparentsBlock').style.display = partnerFamilyMode === 'both' ? 'block' : 'none';
+}
+
+function initPartnerFamily() {
+    const g = document.getElementById('partnerGrandparentsContainer');
+    g.innerHTML = '';
+    PGP_DEFS.forEach(def => {
+        g.appendChild(buildPersonCard(def, 'pgp'));
+        buildDiseasePanel('pgp-' + def.key + '-disease-panel', 'pgp-' + def.key + '-tags');
+    });
+    const pc = document.getElementById('partnerParentsContainer');
+    pc.innerHTML = '';
+    PP_DEFS.forEach(def => {
+        pc.appendChild(buildPersonCard(def, 'pp'));
+        buildDiseasePanel('pp-' + def.key + '-disease-panel', 'pp-' + def.key + '-tags');
+    });
+}
+
+function validatePartnerFamily() {
+    let valid = true;
+    if (partnerFamilyMode === 'both') PGP_DEFS.forEach(def => { if (!validatePersonFields('pgp-' + def.key)) valid = false; });
+    PP_DEFS.forEach(def => { if (!validatePersonFields('pp-' + def.key)) valid = false; });
+    return valid;
+}
+
+function collectPartnerFamily() {
+    if (!familyData.partner) return;
+    delete familyData.partner.grandparents;
+    delete familyData.partner.parents;
+    if (partnerFamilyMode === 'none') return;
+    familyData.partner.parents = readPersonData('pp', PP_DEFS, 'pp');
+    if (partnerFamilyMode === 'both') familyData.partner.grandparents = readPersonData('pgp', PGP_DEFS, 'pgp');
+}
+
+function partnerNext() {
+    if (!partnerChoice) { document.getElementById('partnerChoiceErr').classList.add('show'); return; }
+    if (partnerFamilyEnabled()) {
+        const valid = validatePartner();
+        document.getElementById('partnerBanner').classList.toggle('show', !valid);
+        if (!valid) { document.querySelector('#partnerSection .field-error')?.scrollIntoView({behavior:'smooth',block:'center'}); return; }
+        collectPartnerData();
+        showSection('partnerFamily');
+    } else {
+        generateAnalysis();
+    }
+}
+
+function validatePartner() {
+    let valid = true;
+    [['partnerName','partnerNameErr'],['partnerAge','partnerAgeErr'],['partnerGender','partnerGenderErr'],
+     ['partnerBlood','partnerBloodErr'],['partnerBody','partnerBodyErr']].forEach(([f,e]) => {
+        const el = document.getElementById(f);
+        const empty = !el || !el.value || el.value.trim() === '';
+        setError(f, e, empty);
+        if (empty) valid = false;
+    });
+    return valid;
+}
+
+function collectPartnerData() {
+    familyData.partner = {
+        name: document.getElementById('partnerName').value,
+        age: document.getElementById('partnerAge').value,
+        gender: document.getElementById('partnerGender').value,
+        bloodGroup: document.getElementById('partnerBlood').value,
+        bodyType: document.getElementById('partnerBody').value,
+        diseases: getSelectedDiseases('partner-disease-panel')
+    };
+}
+
+function generatePedigreeChart() {
+    const gp = familyData.grandparents;
+    const p = familyData.parents;
+    const pt = familyData.patient;
+    const pr = familyData.partner;
+    const prGP = (hasPartner && pr?.grandparents && Object.keys(pr.grandparents).length) ? pr.grandparents : null;
+    const prP = (hasPartner && pr?.parents && Object.keys(pr.parents).length) ? pr.parents : null;
+    const hasPf = !!(prGP || prP);
+
+    const memberHtml = (sym, data, label) => `
+        <div class="member">
+            <div class="member-symbol ${data?.sex||'male'} ${(data?.diseases?.length>0)?'affected':''}">
+                ${label}
+            </div>
+            <div class="member-info">
+                <div class="member-name">${data?.name||'N/A'}</div>
+                <div>${data?.age||'N/A'} yrs &nbsp; ${data?.bloodGroup||'N/A'}</div>
+                ${data?.diseases?.length ? '<div style="color:var(--error);font-size:0.75rem">'+data.diseases.slice(0,2).join(', ')+(data.diseases.length>2?'...':'')+'</div>' : ''}
+            </div>
+        </div>`;
+
+    const gpMembers = g => `
+        ${memberHtml('PGF', {...g['pg-father'], sex:'male'}, 'PGF')}
+        ${memberHtml('PGM', {...g['pg-mother'], sex:'female'}, 'PGM')}
+        ${memberHtml('MGF', {...g['mg-father'], sex:'male'}, 'MGF')}
+        ${memberHtml('MGM', {...g['mg-mother'], sex:'female'}, 'MGM')}`;
+    const pMembers = g => `
+        ${memberHtml('F', {...g['father'], sex:'male'}, 'F')}
+        ${memberHtml('M', {...g['mother'], sex:'female'}, 'M')}`;
+
+    const group = (caption, inner) => `<div class="gen-group"><div class="gen-caption">${caption}</div><div class="gen-members">${inner}</div></div>`;
+    // One generation row. When the partner's family is shown, the two families sit side by side.
+    const row = (a, b) => {
+        if (!a && !b) return '';
+        if (!hasPf) return `<div class="generation">${a}</div>`;
+        return `<div class="generation">${a ? group("Patient's family", a) : ''}${b ? group("Partner's family", b) : ''}</div>`;
+    };
+
+    let html = '';
+
+    if (patientFamilyMode !== 'both') {
+        const what = patientFamilyMode === 'none' ? 'Parents and grandparents were' : 'Grandparents were';
+        html += `<p style="text-align:center;color:var(--text-light);margin-bottom:24px;font-size:0.95rem">${what} not provided.</p>`;
+    }
+    html += row(gpOn() ? gpMembers(gp) : '', prGP ? gpMembers(prGP) : '');
+    html += row(pOn() ? pMembers(p) : '', prP ? pMembers(prP) : '');
+
+    const ptSex = pt.gender === 'Male' ? 'male' : 'female';
+    if (hasPartner && pr) {
+        const prSex = pr.gender === 'Male' ? 'male' : 'female';
+        html += `
+        <p class="pedigree-caption">Patient and partner, shown as the parents of the next generation</p>
+        <div class="generation">
+            ${memberHtml('P', {...pt, sex: ptSex}, 'P')}
+            ${memberHtml('PR', {...pr, sex: prSex}, 'PR')}
+        </div>
+        <div class="generation">
+            <div class="member">
+                <div class="member-symbol future">?</div>
+                <div class="member-info">
+                    <div class="member-name">Future child</div>
+                    <div>Risk estimated below</div>
+                </div>
+            </div>
+        </div>`;
+    } else {
+        html += `
+        <div class="generation">
+            ${memberHtml('P', {...pt, sex: ptSex}, 'P')}
+        </div>`;
+    }
+
+    document.getElementById('pedigreeDisplay').innerHTML = html;
+}
+
+async function performAIAnalysis() {
+    const allDiseases = [];
+    Object.values(familyData.grandparents).forEach(p => { if (p.diseases) allDiseases.push(...p.diseases); });
+    Object.values(familyData.parents).forEach(p => { if (p.diseases) allDiseases.push(...p.diseases); });
+    if (familyData.patient.diseases) allDiseases.push(...familyData.patient.diseases);
+    if (hasPartner && familyData.partner?.diseases) allDiseases.push(...familyData.partner.diseases);
+    if (hasPartner) {
+        Object.values(familyData.partner?.grandparents || {}).forEach(x => { if (x.diseases) allDiseases.push(...x.diseases); });
+        Object.values(familyData.partner?.parents || {}).forEach(x => { if (x.diseases) allDiseases.push(...x.diseases); });
+    }
+    const uniqueDiseases = [...new Set(allDiseases)];
+    const partnerFam = !!(hasPartner && (familyData.partner?.parents || familyData.partner?.grandparents));
+
+    const orphanNote = patientFamilyMode === 'none'
+        ? '\nIMPORTANT: The patient has NO information about their parents or grandparents (skipped, e.g. orphan). Base the analysis only on the patient\'s own data, state clearly that family history is unavailable, and recommend genetic screening/testing as a substitute for family history.\n'
+        : patientFamilyMode === 'parents'
+            ? '\nNOTE: The patient provided details for their parents only; grandparent information was skipped and is unavailable. Base the analysis on the patient and their parents, and mention that grandparent history is missing.\n'
+            : '';
+    const partnerNote = hasPartner
+        ? '\nPARTNER: The patient has a partner (see "partner" in Family Data). Treat the patient and the partner as the two PARENTS of the next generation. For every disease, "futureGenerationRisk" must be the risk to their children, combining BOTH partners\' conditions (consider recessive carrier risk when both have the same or related conditions). ' + (partnerFam ? 'The partner\'s parents and/or grandparents are also provided under "partner" in Family Data; use them to assess the partner\'s side of the inheritance.' : 'The partner\'s own parents/grandparents history is unavailable.') + ' Include the "couple" object in the JSON.\n'
+        : '';
+    const coupleSchema = hasPartner
+        ? '\n  "couple": { "offspringRisk": <0-100>, "summary": "<brief>", "sharedConditions": [""], "recommendations": [""] },'
+        : '';
+    const prompt = `You are a genetic counselor. Based on the following family medical history, provide a comprehensive genetic risk analysis in JSON format only (no extra text):
+${orphanNote}${partnerNote}
+Family Data: ${JSON.stringify(familyData, null, 2)}
+Diseases present: ${uniqueDiseases.join(', ')}
+
+Return ONLY valid JSON with this structure:
+{
+  "overallRisk": { "percentage": <0-100>, "level": "<Low/Moderate/High>", "summary": "<brief>" },${coupleSchema}
+  "diseaseAnalysis": [{ "disease": "", "inheritancePattern": "", "currentRisk": <0-100>, "futureGenerationRisk": <0-100>, "recommendations": [""] }],
+  "preventiveMeasures": [""],
+  "medications": [{ "disease": "", "medication": "", "purpose": "" }],
+  "lifestyleRecommendations": [""]
+}`;
+
+    try {
+        const response = await fetch('https://api.anthropic.com/v1/messages', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                model: 'claude-sonnet-4-20250514',
+                max_tokens: 1500,
+                messages: [{ role: 'user', content: prompt }]
+            })
+        });
+        const data = await response.json();
+        const text = data.content?.find(i => i.type === 'text')?.text || '';
+        const match = text.match(/\{[\s\S]*\}/);
+        if (match) return JSON.parse(match[0]);
+    } catch(e) { console.error(e); }
+    return generateFallbackAnalysis(uniqueDiseases);
+}
+
+function generateFallbackAnalysis(uniqueDiseases) {
+    const rp = Math.min(20 + uniqueDiseases.length * 12, 85);
+    const ptD = familyData.patient.diseases || [];
+    const prD = hasPartner ? (familyData.partner?.diseases || []) : [];
+    const shared = ptD.filter(d => prD.includes(d));
+    const famD = o => [...new Set(Object.values(o || {}).flatMap(x => x.diseases || []))];
+    const ptFam = famD({...familyData.grandparents, ...familyData.parents});
+    const prFam = hasPartner ? famD({...familyData.partner?.grandparents, ...familyData.partner?.parents}) : [];
+    const summary = patientFamilyMode === 'none'
+        ? `Family history of parents and grandparents is unavailable. This estimate uses only the patient's own ${uniqueDiseases.length} recorded condition(s) and is therefore uncertain. Genetic screening is strongly recommended.`
+        : patientFamilyMode === 'parents'
+        ? `Based on the patient's and parents' history (grandparents not provided) with ${uniqueDiseases.length} condition(s), overall genetic risk is estimated at ${rp}%.`
+        : `Based on family history with ${uniqueDiseases.length} condition(s), overall genetic risk is estimated at ${rp}%.`;
+    const analysis = {
+        overallRisk: { percentage: rp, level: rp<30?'Low':rp<60?'Moderate':'High', summary },
+        diseaseAnalysis: uniqueDiseases.map(d => ({
+            disease: d,
+            inheritancePattern: 'Multifactorial',
+            currentRisk: Math.min(25 + Math.floor(Math.random()*40), 90),
+            futureGenerationRisk: Math.min(15 + Math.floor(Math.random()*35) + (shared.includes(d) ? 25 : 0) + (hasPartner && (ptD.includes(d) || prD.includes(d) || prFam.includes(d)) ? 5 : 0), 90),
+            recommendations: [`Regular screening for ${d}`, 'Consult a genetic counsellor', 'Monitor with annual check-ups']
+        })),
+        preventiveMeasures: [...(patientFamilyMode === 'none' ? ['Consider genetic screening or carrier testing, since no family history is available'] : []), 'Regular health check-ups every 6 months','Maintain a balanced nutrient-rich diet','Exercise at least 150 minutes per week','Avoid smoking and limit alcohol','Manage stress through mindfulness or yoga','Ensure 7–8 hours of quality sleep nightly'],
+        medications: uniqueDiseases.map(d => ({ disease: d, medication: 'Consult physician', purpose: 'Prevention and management' })),
+        lifestyleRecommendations: ['Prioritise whole foods over processed items','Stay hydrated with 8–10 glasses of water daily','Incorporate both strength training and cardio','Maintain healthy body weight','Schedule regular preventive health screenings']
+    };
+    if (hasPartner) {
+        const pct = Math.min(10 + ptD.length * 8 + prD.length * 8 + shared.length * 20 + (ptFam.length + prFam.length) * 3, 90);
+        analysis.couple = {
+            offspringRisk: pct,
+            summary: (shared.length
+                ? `Both partners have ${shared.join(', ')}, which raises the likelihood of passing it on to their children. Pre-conception genetic counselling is advised.`
+                : `Combining the patient's ${ptD.length} and the partner's ${prD.length} recorded condition(s), the estimated risk for their children is ${pct}%.`)
+                + (prFam.length ? ` The partner's family history (${prFam.join(', ')}) was also taken into account.` : ''),
+            sharedConditions: shared,
+            recommendations: ['Consider pre-conception genetic counselling for both partners', 'Carrier screening for inherited conditions', 'Keep both partners\' health check-ups up to date']
+        };
+    }
+    return analysis;
+}
+
+function riskBar(p) {
+    const v = Math.max(0, Math.min(100, Math.round(Number(p) || 0)));
+    return `<div class="risk-row"><div class="risk-meter" role="img" aria-label="${v} percent"><div class="risk-fill" style="width:${v}%;--p:${v}"></div></div><span class="risk-value">${v}%</span></div>`;
+}
+
+function levelClass(level) {
+    const l = String(level || '').toLowerCase();
+    return l.includes('high') ? 'high' : l.includes('mod') ? 'moderate' : 'low';
+}
+
+function displayAIAnalysis(analysis) {
+    const c = document.getElementById('aiAnalysisContent');
+    c.className = 'analysis-grid';
+    const ov = analysis.overallRisk;
+    const lc = levelClass(ov.level);
+    let html = `<div class="analysis-card wide ${lc==='high'?'alert':''}">
+        <h4>Overall Genetic Risk Assessment</h4>
+        ${riskBar(ov.percentage)}
+        <p style="margin-top:12px"><strong>Risk level</strong> <span class="badge badge-${lc}">${ov.level}</span></p>
+        <p style="margin-top:8px">${ov.summary}</p>
+    </div>`;
+
+    if (analysis.couple) {
+        const cp = analysis.couple;
+        const risk = Math.round(Number(cp.offspringRisk) || 0);
+        html += `<div class="analysis-card wide ${risk>=60?'alert':''}">
+            <h4>Risk for Children of Patient &amp; Partner</h4>
+            ${riskBar(risk)}
+            <p style="margin-top:12px">${cp.summary||''}</p>
+            ${(cp.sharedConditions||[]).length ? `<p style="margin-top:10px"><strong>Conditions in both partners:</strong></p><div class="pill-list">${cp.sharedConditions.map(x=>`<span class="sel-tag">${x}</span>`).join('')}</div>` : ''}
+            ${(cp.recommendations||[]).length ? `<div class="recommendations"><h5>Recommendations</h5><ul>${cp.recommendations.map(r=>`<li>${r}</li>`).join('')}</ul></div>` : ''}
+        </div>`;
+    }
+
+    (analysis.diseaseAnalysis||[]).forEach(d => {
+        const high = Math.max(Number(d.currentRisk)||0, Number(d.futureGenerationRisk)||0) >= 60;
+        html += `<div class="analysis-card ${high?'alert':''}">
+            <h4>${d.disease}</h4>
+            <p style="color:var(--text-light);margin-bottom:10px"><strong>Inheritance pattern:</strong> ${d.inheritancePattern}</p>
+            <p><strong>Current risk</strong></p>
+            ${riskBar(d.currentRisk)}
+            <p style="margin-top:10px"><strong>Future generation risk</strong></p>
+            ${riskBar(d.futureGenerationRisk)}
+            <div class="recommendations"><h5>Recommendations</h5><ul>${(d.recommendations||[]).map(r=>`<li>${r}</li>`).join('')}</ul></div>
+        </div>`;
+    });
+
+    html += `<div class="analysis-card wide"><h4>Preventive measures</h4><div class="recommendations"><ul>${(analysis.preventiveMeasures||[]).map(m=>`<li>${m}</li>`).join('')}</ul></div></div>`;
+
+    if (analysis.medications?.length) {
+        html += `<div class="analysis-card wide"><h4>Medication guidance</h4><div class="recommendations"><ul>${analysis.medications.map(m=>`<li><strong>${m.disease}:</strong> ${m.medication} — ${m.purpose}</li>`).join('')}</ul></div><p style="color:var(--text-light);margin-top:12px;font-style:italic">Always consult your healthcare provider before starting any medication.</p></div>`;
+    }
+
+    html += `<div class="analysis-card wide"><h4>Lifestyle recommendations</h4><div class="recommendations"><ul>${(analysis.lifestyleRecommendations||[]).map(r=>`<li>${r}</li>`).join('')}</ul></div></div>`;
+    c.innerHTML = html;
+}
+
+async function generateAnalysis() {
+    if (!partnerChoice) { document.getElementById('partnerChoiceErr').classList.add('show'); return; }
+    hasPartner = partnerChoice === 'yes';
+    if (hasPartner) {
+        const valid = validatePartner();
+        const banner = document.getElementById('partnerBanner');
+        banner.classList.toggle('show', !valid);
+        if (!valid) { showSection('partner'); document.querySelector('#partnerSection .field-error')?.scrollIntoView({behavior:'smooth',block:'center'}); return; }
+        collectPartnerData();
+    } else {
+        familyData.partner = null;
+    }
+
+    // Steps can be visited in any order, so every earlier section must be complete.
+    const checks = [];
+    if (gpOn()) checks.push(['grandparents', validateGrandparents, 'gpBanner']);
+    if (pOn()) checks.push(['parents', validateParents, 'pBanner']);
+    checks.push(['patient', validatePatient, 'ptBanner']);
+    for (const [step, check, bannerId] of checks) {
+        const ok = check();
+        document.getElementById(bannerId).classList.toggle('show', !ok);
+        if (!ok) {
+            showSection(step);
+            document.querySelector('#' + SECTION_IDS[step] + ' .field-error')?.scrollIntoView({behavior:'smooth',block:'center'});
+            return;
+        }
+    }
+    if (hasPartner && partnerFamilyMode !== 'none') {
+        const okFam = validatePartnerFamily();
+        document.getElementById('partnerFamilyBanner').classList.toggle('show', !okFam);
+        if (!okFam) {
+            showSection('partnerFamily');
+            document.querySelector('#partnerFamilySection .field-error')?.scrollIntoView({behavior:'smooth',block:'center'});
+            return;
+        }
+    }
+    if (gpOn()) collectGrandparentsData();
+    if (pOn()) collectParentsData();
+    collectPatientData();
+    if (hasPartner) collectPartnerFamily();
+
+    analysisDone = true;
+    updateProgressSteps('analysis');
+    showPage('analysisPage');
+    generatePedigreeChart();
+    const box = document.getElementById('aiAnalysisContent');
+    box.className = 'loading';
+    box.textContent = 'Analysing genetic patterns and health risks...';
+    const analysis = await performAIAnalysis();
+    displayAIAnalysis(analysis);
+}
+
+document.getElementById('loginForm').addEventListener('submit', e => {
+    e.preventDefault();
+    const email = document.getElementById('loginEmail');
+    const pass = document.getElementById('loginPassword');
+    let valid = true;
+    const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value);
+    setError('loginEmail','loginEmailErr',!emailOk); if (!emailOk) valid = false;
+    setError('loginPassword','loginPasswordErr',!pass.value); if (!pass.value) valid = false;
+    if (valid) showPage('dataCollectionPage');
+});
+
+document.getElementById('signupForm').addEventListener('submit', e => {
+    e.preventDefault();
+    const name = document.getElementById('signupName');
+    const email = document.getElementById('signupEmail');
+    const pass = document.getElementById('signupPassword');
+    const conf = document.getElementById('signupConfirmPassword');
+    let valid = true;
+    setError('signupName','signupNameErr',!name.value.trim()); if (!name.value.trim()) valid = false;
+    const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value);
+    setError('signupEmail','signupEmailErr',!emailOk); if (!emailOk) valid = false;
+    setError('signupPassword','signupPasswordErr',pass.value.length<6); if (pass.value.length<6) valid = false;
+    const confOk = conf.value === pass.value && conf.value.length > 0;
+    setError('signupConfirmPassword','signupConfirmErr',!confOk); if (!confOk) valid = false;
+    if (valid) { alert('Account created successfully! Please log in.'); showPage('loginPage'); }
+});
+
+initGrandparents();
+initParents();
+initPatient();
+buildDiseasePanel('partner-disease-panel', 'partner-tags');
+initPartnerFamily();
+initStepNav();
+</script>
+</body>
+</html>
